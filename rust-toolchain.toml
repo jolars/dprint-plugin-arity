@@ -1,8 +1,4 @@
 [toolchain]
 channel = "1.94.1"
-# This file is the single source of truth for the toolchain: because it pins a
-# specific channel, rustup overrides whatever CI's setup action installed. So
-# the components and targets have to be declared here too, or CI ends up on
-# 1.94.1 without rustfmt/clippy.
 components = ["rustfmt", "clippy"]
 targets = ["wasm32-unknown-unknown"]

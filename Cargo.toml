@@ -14,7 +14,6 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 arity-formatter = { version = "0.2", features = ["schema"] }
-arity-parser = "0.2"
 dprint-core = { version = "0.68", features = ["wasm"] }
 schemars = "1.0"
 serde = { version = "1.0", features = ["derive"] }

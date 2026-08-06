@@ -89,7 +89,6 @@ name = "dprint-plugin-arity"
 version = "0.1.0"
 dependencies = [
  "arity-formatter",
- "arity-parser",
  "dprint-core",
  "schemars",
  "serde",

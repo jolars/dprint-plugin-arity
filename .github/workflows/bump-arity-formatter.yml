@@ -58,10 +58,6 @@ jobs:
           git switch -c "$BRANCH"
 
           cargo add arity-formatter@"$LATEST" --features schema
-          # arity-parser is versioned in lockstep with the formatter.
-          PARSER=$(curl -sSf https://crates.io/api/v1/crates/arity-parser \
-            | jq -r '.crate.max_stable_version')
-          cargo add arity-parser@"$PARSER"
 
           # A formatter bump can change the accepted config values.
           UPDATE_SCHEMA=1 cargo test

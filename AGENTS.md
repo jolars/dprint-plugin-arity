@@ -9,7 +9,12 @@ A thin [dprint](https://dprint.dev) Wasm plugin that wraps the
 [`arity-formatter`](https://crates.io/crates/arity-formatter) crate so the arity
 R formatter can run inside dprint. The plugin holds no formatting logic of its
 own; it maps dprint configuration onto an `arity_formatter::FormatStyle` plus an
-`arity_parser::parser::ParseOptions` and forwards the file text.
+`arity_formatter::parser::ParseOptions` and forwards the file text.
+
+`arity-formatter` is the only arity dependency: it re-exports `arity_parser`'s
+`parser`, `ast`, and `syntax` modules plus the `rowan` it is built against, so
+everything the plugin needs is reachable through it without a second
+version-locked dependency.
 
 This crate is released independently of the main arity CLI (which lives in the
 `jolars/arity` repo). The separate repo exists so the `plugin.wasm` release

@@ -3,12 +3,12 @@
 //!
 //! The plugin holds no formatting logic of its own. It maps dprint
 //! configuration onto an [`arity_formatter::FormatStyle`] plus an
-//! [`arity_parser::parser::ParseOptions`] and hands the file text over; layout
+//! [`arity_formatter::parser::ParseOptions`] and hands the file text over; layout
 //! is entirely arity's business.
 
+use arity_formatter::parser::ParseOptions;
 use arity_formatter::rowan::{TextRange, TextSize};
 use arity_formatter::{FormatStyle, LineEnding};
-use arity_parser::parser::ParseOptions;
 use dprint_core::configuration::{
     ConfigKeyMap, ConfigurationDiagnostic, GlobalConfiguration, NewLineKind,
     get_unknown_property_diagnostics, get_value,
@@ -176,7 +176,7 @@ fn format_text_range(
         ));
     }
 
-    let parsed = arity_parser::parser::parse_with_options(text, parse_options);
+    let parsed = arity_formatter::parser::parse_with_options(text, parse_options);
     if !parsed.diagnostics.is_empty() {
         return Err(parse_error(parsed.diagnostics.len()));
     }
