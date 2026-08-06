@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Configuration",
+  "description": "dprint-facing configuration, serialized as camelCase.\n\n`lineEnding` is stored as a `String` and parsed lazily, borrowing its JSON\nschema from [`LineEnding`] so the published `schema.json` tracks arity's\naccepted values instead of hand-listing them.",
+  "type": "object",
+  "properties": {
+    "lineWidth": {
+      "description": "Maximum line width the layout engine targets. Defaults to dprint's\nglobal `lineWidth`, or 80 if unset.",
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0,
+      "default": 80
+    },
+    "indentWidth": {
+      "description": "Number of spaces per indentation level. Defaults to dprint's global\n`indentWidth`, or 2 if unset. Arity always indents with spaces, so\ndprint's global `useTabs` has no effect.",
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0,
+      "default": 2
+    },
+    "lineEnding": {
+      "description": "Line-ending style for formatted output. Defaults to dprint's global\n`newLineKind`, or `auto` if unset.",
+      "$ref": "#/$defs/LineEnding",
+      "default": "auto"
+    },
+    "roxygenMarkdown": {
+      "description": "Whether roxygen comments are markdown by default, i.e. whether the\npackage sets `Roxygen: list(markdown = TRUE)`.\n\nThe `arity` CLI discovers this by reading `DESCRIPTION` and\n`man/roxygen/meta.R`. dprint Wasm plugins run in a sandbox with no\nfilesystem access, so here it has to be stated explicitly. A block's own\n`@md`/`@noMd` tag still wins over this default, exactly as in the CLI.",
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "LineEnding": {
+      "description": "The character sequence the formatter emits at the end of each line.\n\nThe layout engine always builds output with `\\n` line breaks (the formatter\nis the sole authority on *where* breaks go, Tenet 1); this only selects the\nbyte sequence those breaks render as in the final string.",
+      "oneOf": [
+        {
+          "description": "Detect the newline style per file from the first line ending in the\nsource, defaulting to `\\n` when the source has none. The default.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Always `\\n` (Unix).",
+          "type": "string",
+          "const": "lf"
+        },
+        {
+          "description": "Always `\\r\\n` (Windows).",
+          "type": "string",
+          "const": "crlf"
+        },
+        {
+          "description": "`\\n` on Unix, `\\r\\n` on Windows.",
+          "type": "string",
+          "const": "native"
+        }
+      ]
+    }
+  }
+}

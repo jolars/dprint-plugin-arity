@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-smoke:
+    name: Build & Parity Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ci-wasm
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Test (native)
+        run: cargo test
+
+      - name: Build wasm plugin
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - name: Install dprint
+        run: cargo install --locked dprint
+
+      # The plugin embeds `arity-formatter`; the CLI is a separate binary built
+      # from the same engine. Diffing them is the only thing that catches the
+      # plugin's config mapping drifting away from `arity format`.
+      - name: Download the arity CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG=$(gh release list --repo jolars/arity --limit 50 \
+            --json tagName --jq '[.[].tagName | select(test("^v[0-9]"))][0]')
+          echo "Using arity $TAG"
+          gh release download "$TAG" --repo jolars/arity \
+            --pattern 'arity-x86_64-unknown-linux-gnu.tar.gz'
+          mkdir -p cli && tar -xzf arity-x86_64-unknown-linux-gnu.tar.gz -C cli
+          find cli -type f -name arity -exec install -m755 {} "$RUNNER_TEMP/arity" \;
+          "$RUNNER_TEMP/arity" --version
+
+      - name: Parity and idempotence smoke test
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/smoke"
+          mkdir -p "$WORK" && cd "$WORK"
+
+          cat > sample.R <<'SAMPLE'
+          #' Summarize a data frame
+          #'
+          #' @param df A data frame.
+          #' @return A tibble.
+          summarize_by<-function(df,by,na.rm=TRUE,verbose=FALSE,trim=0,weights=NULL){
+          if(verbose){message("starting")}else{invisible(NULL)}
+          out<-df|>dplyr::group_by(.data[[by]])|>dplyr::summarise(mean=mean(value,na.rm=na.rm))
+          for(i in seq_len(nrow(out))){if(out$n[i]==0){next}else{out$mean[i]<-round(out$mean[i],2)}}
+          out
+          }
+          SAMPLE
+
+          cat > dprint.json <<CONFIG
+          {
+            "arity": {},
+            "plugins": ["${GITHUB_WORKSPACE}/target/wasm32-unknown-unknown/release/dprint_plugin_arity.wasm"]
+          }
+          CONFIG
+
+          cp sample.R via_cli.R
+          "$RUNNER_TEMP/arity" format via_cli.R
+          dprint fmt
+
+          echo "::group::plugin vs CLI"
+          diff sample.R via_cli.R
+          echo "::endgroup::"
+
+          cp sample.R first_pass.R
+          dprint fmt
+          echo "::group::idempotence"
+          diff first_pass.R sample.R
+          echo "::endgroup::"
+
+  versionary:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-and-smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      release_created: ${{ steps.versionary.outputs.release_created }}
+      tag_name: ${{ steps.versionary.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - id: versionary
+        uses: jolars/versionary@v0
+        with:
+          github-token: ${{ secrets.RELEASE_TOKEN }}

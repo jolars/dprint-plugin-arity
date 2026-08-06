@@ -1,0 +1,21 @@
+[package]
+name = "dprint-plugin-arity"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/jolars/dprint-plugin-arity"
+homepage = "https://arity.cc"
+authors = ["Johan Larsson <johan@jolars.co>"]
+description = "dprint Wasm plugin that wraps the arity formatter for the R language."
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+arity-formatter = { version = "0.2", features = ["schema"] }
+arity-parser = "0.2"
+dprint-core = { version = "0.68", features = ["wasm"] }
+schemars = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

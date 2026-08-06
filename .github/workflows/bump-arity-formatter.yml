@@ -1,0 +1,78 @@
+name: Bump arity-formatter
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  bump:
+    name: Open a bump PR when a new arity-formatter lands
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Check crates.io for a newer release
+        id: check
+        run: |
+          set -euo pipefail
+          CURRENT=$(grep -A1 'name = "arity-formatter"' Cargo.lock \
+            | grep '^version' | head -1 | sed 's/.*"\(.*\)"/\1/')
+          LATEST=$(curl -sSf https://crates.io/api/v1/crates/arity-formatter \
+            | jq -r '.crate.max_stable_version')
+          echo "current=$CURRENT latest=$LATEST"
+          if [ "$CURRENT" = "$LATEST" ] || \
+             [ "$(printf '%s\n%s\n' "$CURRENT" "$LATEST" | sort -V | tail -1)" != "$LATEST" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
+            echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open the bump PR
+        if: steps.check.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          CURRENT: ${{ steps.check.outputs.current }}
+          LATEST: ${{ steps.check.outputs.latest }}
+        run: |
+          set -euo pipefail
+          BRANCH="deps/arity-formatter-$LATEST"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "$BRANCH already exists; nothing to do."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+
+          cargo add arity-formatter@"$LATEST" --features schema
+          # arity-parser is versioned in lockstep with the formatter.
+          PARSER=$(curl -sSf https://crates.io/api/v1/crates/arity-parser \
+            | jq -r '.crate.max_stable_version')
+          cargo add arity-parser@"$PARSER"
+
+          # A formatter bump can change the accepted config values.
+          UPDATE_SCHEMA=1 cargo test
+
+          # Same minor -> a patch-level formatter fix; otherwise a feature bump.
+          if [ "${CURRENT%.*}" = "${LATEST%.*}" ]; then TYPE=fix; else TYPE=feat; fi
+
+          git add Cargo.toml Cargo.lock schema.json
+          git commit -m "$TYPE: bump \`arity-formatter\` to $LATEST"
+          git push -u origin "$BRANCH"
+
+          gh pr create \
+            --title "$TYPE: bump \`arity-formatter\` to $LATEST" \
+            --body "Bumps \`arity-formatter\` from $CURRENT to $LATEST (and \`arity-parser\` to $PARSER), regenerating \`schema.json\`.
+
+          CI runs the dprint-vs-\`arity format\` parity smoke test, so an API- or behavior-incompatible change fails the check rather than merging silently."
