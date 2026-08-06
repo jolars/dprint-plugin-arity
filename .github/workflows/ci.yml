@@ -20,11 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # `rust-toolchain.toml` pins the channel, so it overrides any toolchain a
+      # setup action installs. Install straight from it instead, which brings
+      # the components and the wasm target it declares.
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-          components: rustfmt, clippy
+        run: |
+          rustup toolchain install --profile minimal
+          rustup component add rustfmt clippy
+          rustup target add wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -120,7 +123,9 @@ jobs:
           fetch-tags: true
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - uses: dtolnay/rust-toolchain@stable
+      # See above: `rust-toolchain.toml` pins the channel, so install from it.
+      - name: Install Rust
+        run: rustup toolchain install --profile minimal
 
       - id: versionary
         uses: jolars/versionary@v0

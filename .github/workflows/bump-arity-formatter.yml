@@ -17,7 +17,9 @@ jobs:
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - uses: dtolnay/rust-toolchain@stable
+      # See ci.yml: `rust-toolchain.toml` pins the channel, so install from it.
+      - name: Install Rust
+        run: rustup toolchain install --profile minimal
 
       - name: Check crates.io for a newer release
         id: check

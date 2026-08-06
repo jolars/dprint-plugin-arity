@@ -27,10 +27,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # See ci.yml: `rust-toolchain.toml` pins the channel and declares the
+      # wasm target, so install from it rather than fighting the override.
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
+        run: |
+          rustup toolchain install --profile minimal
+          rustup target add wasm32-unknown-unknown
 
       - uses: Swatinem/rust-cache@v2
         with:
