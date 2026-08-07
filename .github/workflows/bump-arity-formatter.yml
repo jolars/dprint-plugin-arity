@@ -27,7 +27,11 @@ jobs:
           set -euo pipefail
           CURRENT=$(grep -A1 'name = "arity-formatter"' Cargo.lock \
             | grep '^version' | head -1 | sed 's/.*"\(.*\)"/\1/')
-          LATEST=$(curl -sSf https://crates.io/api/v1/crates/arity-formatter \
+          # crates.io rejects curl's default User-Agent with a 403; its crawler
+          # policy wants a UA that identifies the caller.
+          LATEST=$(curl -sSf \
+            -H "User-Agent: dprint-plugin-arity bump workflow (https://github.com/jolars/dprint-plugin-arity)" \
+            https://crates.io/api/v1/crates/arity-formatter \
             | jq -r '.crate.max_stable_version')
           echo "current=$CURRENT latest=$LATEST"
           if [ "$CURRENT" = "$LATEST" ] || \
@@ -71,6 +75,6 @@ jobs:
 
           gh pr create \
             --title "$TYPE: bump \`arity-formatter\` to $LATEST" \
-            --body "Bumps \`arity-formatter\` from $CURRENT to $LATEST (and \`arity-parser\` to $PARSER), regenerating \`schema.json\`.
+            --body "Bumps \`arity-formatter\` from $CURRENT to $LATEST, regenerating \`schema.json\`.
 
           CI runs the dprint-vs-\`arity format\` parity smoke test, so an API- or behavior-incompatible change fails the check rather than merging silently."
