@@ -10,9 +10,9 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "arity-formatter"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1948cc038bf68ac7e9faddceb4fa9077d0a4d135ff29ae15b871428c25ed0d4e"
+checksum = "3bda75f09e12106952f335f9e94db4e9d5d3f81b6d890c55dd7a4d77a51e7b56"
 dependencies = [
  "arity-parser",
  "rowan",
@@ -22,9 +22,9 @@ dependencies = [
 
 [[package]]
 name = "arity-parser"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d48702bcea8148cdd67d2c254970be282ad53869cc74348605ffffbf327894c"
+checksum = "cf208b6beb7111d5b268588aff4422bf2007fd6a9a4976dd1d70f8da80f2649c"
 dependencies = [
  "rowan",
  "serde",
