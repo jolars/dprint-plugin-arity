@@ -10,9 +10,9 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "arity-formatter"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3bda75f09e12106952f335f9e94db4e9d5d3f81b6d890c55dd7a4d77a51e7b56"
+checksum = "4cf7c58dd739c784bff728cb934399b6465c18a8860fc75a1a916193e84c8850"
 dependencies = [
  "arity-parser",
  "rowan",
@@ -22,9 +22,9 @@ dependencies = [
 
 [[package]]
 name = "arity-parser"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf208b6beb7111d5b268588aff4422bf2007fd6a9a4976dd1d70f8da80f2649c"
+checksum = "3d2916fe956593d15f3042a73a1cd698b87ffea521b26bd5c78cd22f2ec6e3ee"
 dependencies = [
  "rowan",
  "serde",
@@ -86,7 +86,7 @@ dependencies = [
 
 [[package]]
 name = "dprint-plugin-arity"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "arity-formatter",
  "dprint-core",
