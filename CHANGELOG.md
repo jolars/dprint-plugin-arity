@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.1](https://github.com/jolars/dprint-plugin-arity/compare/v0.6.0...v0.6.1) (2026-09-08)
+
+### Bug Fixes
+- bump `arity-formatter` to 0.7.1 ([`3cd815a`](https://github.com/jolars/dprint-plugin-arity/commit/3cd815abbc0cf036cea683e9f4796fe71d7e008f))
+
 ## [0.6.0](https://github.com/jolars/dprint-plugin-arity/compare/v0.5.0...v0.6.0) (2026-09-01)
 
 ### Features
