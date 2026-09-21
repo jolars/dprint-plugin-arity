@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.0](https://github.com/jolars/dprint-plugin-arity/compare/v0.6.1...v1.0.0) (2026-09-21)
+
+### Breaking changes
+- use direct releases and bump to 1.0.0 ([`4b5462c`](https://github.com/jolars/dprint-plugin-arity/commit/4b5462c8de1083f49e975984fbb9943844980bd1))
+
 ## [0.6.1](https://github.com/jolars/dprint-plugin-arity/compare/v0.6.0...v0.6.1) (2026-09-08)
 
 ### Bug Fixes
