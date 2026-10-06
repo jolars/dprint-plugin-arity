@@ -43,6 +43,10 @@ fn default_indent_width() -> u32 {
     2
 }
 
+fn default_roxygen() -> bool {
+    true
+}
+
 fn default_line_ending_value() -> String {
     "auto".to_string()
 }
@@ -69,6 +73,9 @@ pub struct Configuration {
     #[serde(default = "default_line_ending_value")]
     #[schemars(with = "LineEnding")]
     line_ending: String,
+    /// Whether to format roxygen `#'` blocks. Defaults to true, matching arity.
+    #[serde(default = "default_roxygen")]
+    roxygen: bool,
     /// Whether roxygen comments are markdown by default, i.e. whether the
     /// package sets `Roxygen: list(markdown = TRUE)`.
     ///
@@ -131,6 +138,7 @@ fn build_style(cfg: &Configuration) -> FormatStyle {
         line_width: cfg.line_width as usize,
         indent_width: cfg.indent_width as usize,
         line_ending: parse_line_ending(&cfg.line_ending, &mut throwaway),
+        roxygen: cfg.roxygen,
     }
 }
 
@@ -152,11 +160,9 @@ fn parse_error(count: usize) -> FormatError {
 
 /// Formats only `range`, splicing the result back into `text`.
 ///
-/// Two details matter here. `format_range` widens the requested range out to
-/// node boundaries and reports what it actually covered, so the splice has to
-/// use the returned range rather than the requested one. And it does not apply
-/// line endings -- its text is always LF -- so the target ending is applied to
-/// the replacement before splicing, or a CRLF file would grow LF-only islands.
+/// `format_range` widens the requested range to node boundaries and reports
+/// what it covered, so the splice must use the returned range. It also applies
+/// the configured line ending to its text before returning.
 fn format_text_range(
     text: &str,
     range: std::ops::Range<usize>,
@@ -190,16 +196,10 @@ fn format_text_range(
 
     let replaced_start = usize::from(formatted.range.start());
     let replaced_end = usize::from(formatted.range.end());
-    let eol = style.line_ending.resolve(text);
-    let replacement = if eol == "\n" {
-        formatted.text
-    } else {
-        formatted.text.replace('\n', eol)
-    };
 
     let mut out = String::with_capacity(text.len());
     out.push_str(&text[..replaced_start]);
-    out.push_str(&replacement);
+    out.push_str(&formatted.text);
     out.push_str(&text[replaced_end..]);
     Ok(Some(out))
 }
@@ -236,6 +236,7 @@ impl SyncPluginHandler<Configuration> for ArityHandler {
         );
         let roxygen_markdown: bool =
             get_value(&mut config, "roxygenMarkdown", false, &mut diagnostics);
+        let roxygen: bool = get_value(&mut config, "roxygen", default_roxygen(), &mut diagnostics);
 
         // Re-run the parse purely to surface a diagnostic for a bad value.
         let _ = parse_line_ending(&line_ending, &mut diagnostics);
@@ -247,6 +248,7 @@ impl SyncPluginHandler<Configuration> for ArityHandler {
                 line_width,
                 indent_width,
                 line_ending,
+                roxygen,
                 roxygen_markdown,
             },
             diagnostics,
@@ -336,6 +338,7 @@ mod tests {
             line_width: 80,
             indent_width: 2,
             line_ending: "auto".to_string(),
+            roxygen: true,
             roxygen_markdown: false,
         }
     }
@@ -429,6 +432,18 @@ mod tests {
     }
 
     #[test]
+    fn roxygen_formatting_can_be_disabled() {
+        let source = "#' Title  with  source spacing\n#' Second  line\nf<-function(){1+2}\n";
+        let mut cfg = config();
+        cfg.roxygen = false;
+
+        let out = format_all(&cfg, source);
+        assert!(out.starts_with("#' Title  with  source spacing\n#' Second  line\n"));
+        assert!(out.contains("f <- function() 1 + 2"));
+        assert_eq!(format_all(&cfg, &out), out);
+    }
+
+    #[test]
     fn range_format_only_touches_its_range() {
         let cfg = config();
         let text = "a<-1\nb<-2\n";
@@ -466,6 +481,7 @@ mod tests {
             !out.replace("\r\n", "").contains('\n'),
             "spliced text left a bare LF behind: {out:?}"
         );
+        assert!(!out.contains("\r\r\n"), "CRLF was applied twice: {out:?}");
     }
 
     #[test]
@@ -559,6 +575,7 @@ mod schema_tests {
             props["roxygenMarkdown"]["default"],
             serde_json::json!(false)
         );
+        assert_eq!(props["roxygen"]["default"], serde_json::json!(true));
     }
 
     /// Guards against an upstream serde-rename change leaking PascalCase

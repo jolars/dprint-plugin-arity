@@ -58,7 +58,9 @@ Everything lives in `src/lib.rs`:
   lazily; it borrows its JSON schema from `arity_formatter::LineEnding` via
   `#[schemars(with = ...)]` (gated behind arity-formatter's `schema` feature) so
   the published `schema.json` tracks arity's accepted values instead of
-  hand-listing them.
+  hand-listing them. `roxygen` maps to `FormatStyle.roxygen` and defaults to
+  true, matching the CLI. `roxygenMarkdown` controls the parser's package-wide
+  markdown default separately.
 - `parse_line_ending` — maps the string onto `LineEnding`, pushing a
   `ConfigurationDiagnostic` on an unknown value. It runs twice: once in
   `resolve_config` purely to collect diagnostics, and again in `build_style` to
@@ -71,9 +73,9 @@ Everything lives in `src/lib.rs`:
 - `format_text_range` — the range-format path. Two things are easy to get wrong
   here and are covered by tests: `arity_formatter::format_range` **widens** the
   requested range to node boundaries and reports what it actually covered (so
-  splice over the *returned* range, not the requested one), and it does **not**
-  apply line endings (its text is always LF, so the target ending must be
-  applied to the replacement before splicing or a CRLF file grows LF islands).
+  splice over the *returned* range, not the requested one), and it **applies**
+  the configured line ending to its text (so applying it again creates doubled
+  CRLF sequences).
 - `SyncPluginHandler` impl — `resolve_config` reads the dprint globals and
   validates; `format` decodes UTF-8, dispatches to
   `arity_formatter::format_with_options` (whole file) or `format_text_range`

@@ -41,13 +41,15 @@ Configure under the `arity` key in `dprint.json`. Supported keys:
 | ----------------- | ----------------------------- | ----------------------------- |
 | `lineWidth`       | integer                       | dprint global, else `80`      |
 | `indentWidth`     | integer                       | dprint global, else `2`       |
-| `lineEnding`      | `auto`, `lf`, `crlf`, `native`| from global `newLineKind`     |
+| `lineEnding`      | `auto`, `lf`, `crlf`, `native` | from global `newLineKind`     |
+| `roxygen`         | boolean                       | `true`                        |
 | `roxygenMarkdown` | boolean                       | `false`                       |
 
 Arity always indents with spaces, so dprint's global `useTabs` has no effect.
+Set `roxygen` to `false` to preserve the source layout of `#'` blocks while
+formatting the surrounding R code, as with `roxygen = false` in `arity.toml`.
 
-Formatting is deterministic and rule-based: the input's existing line breaks
-never influence the result. See
+Arity formats R code with deterministic rules. See
 [the arity docs](https://arity.cc) for the formatting rules themselves.
 
 ### `roxygenMarkdown`
