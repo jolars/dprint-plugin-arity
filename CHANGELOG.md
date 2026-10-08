@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.0...v1.1.1) (2026-10-08)
+
+### Bug Fixes
+
+- preserve file matching with dprint-core 0.70 ([`645b88e`](https://github.com/jolars/dprint-plugin-arity/commit/645b88e0ebdc1cdd8e156460aee7d8bd04715183))
+
 ## [1.1.0](https://github.com/jolars/dprint-plugin-arity/compare/v1.0.0...v1.1.0) (2026-10-06)
 
 ### Features
