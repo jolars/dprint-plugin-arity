@@ -255,6 +255,7 @@ impl SyncPluginHandler<Configuration> for ArityHandler {
             file_matching: FileMatchingInfo {
                 file_extensions: FILE_EXTENSIONS.iter().map(|s| (*s).to_string()).collect(),
                 file_names: Vec::new(),
+                additive: false,
             },
         }
     }
