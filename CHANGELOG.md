@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.2...v1.1.3) (2026-10-14)
+
+### Bug Fixes
+
+- accept dprint settings in config schema ([`52608c1`](https://github.com/jolars/dprint-plugin-arity/commit/52608c13032e1facdcfb4ef939b2bfd3db91aac4))
+
 ## [1.1.2](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.1...v1.1.2) (2026-10-14)
 
 ### Bug Fixes
