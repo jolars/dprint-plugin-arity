@@ -46,7 +46,17 @@ jobs:
         run: cargo build --release --target wasm32-unknown-unknown
 
       - name: Install dprint
-        run: cargo install --locked dprint
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Prebuilt releases keep dprint's Rust requirements independent of
+          # the plugin's pinned toolchain.
+          gh release download --repo dprint/dprint \
+            --pattern 'dprint-x86_64-unknown-linux-gnu.zip' --dir "$RUNNER_TEMP/dprint"
+          unzip "$RUNNER_TEMP/dprint/dprint-x86_64-unknown-linux-gnu.zip" -d "$RUNNER_TEMP/dprint"
+          chmod +x "$RUNNER_TEMP/dprint/dprint"
+          echo "$RUNNER_TEMP/dprint" >> "$GITHUB_PATH"
 
       # The plugin embeds `arity-formatter`; the CLI is a separate binary built
       # from the same engine. Diffing them is the only thing that catches the
