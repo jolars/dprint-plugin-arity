@@ -32,6 +32,38 @@
       "description": "Whether roxygen comments are markdown by default, i.e. whether the\npackage sets `Roxygen: list(markdown = TRUE)`.\n\nThe `arity` CLI discovers this by reading `DESCRIPTION` and\n`man/roxygen/meta.R`. dprint Wasm plugins run in a sandbox with no\nfilesystem access, so here it has to be stated explicitly. A block's own\n`@md`/`@noMd` tag still wins over this default, exactly as in the CLI.",
       "type": "boolean",
       "default": false
+    },
+    "associations": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ],
+      "description": "File patterns to associate with this plugin."
+    },
+    "locked": {
+      "description": "Whether this configuration may not be overridden or extended.",
+      "type": "boolean"
+    },
+    "overrides": {
+      "description": "Configuration overrides for matching files, applied in order.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/DprintOverride"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DprintOverride"
+          }
+        }
+      ]
     }
   },
   "additionalProperties": false,
@@ -60,6 +92,59 @@
           "const": "native"
         }
       ]
+    },
+    "DprintOverride": {
+      "type": "object",
+      "properties": {
+        "lineWidth": {
+          "description": "Maximum line width the layout engine targets. Defaults to dprint's\nglobal `lineWidth`, or 80 if unset.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "default": 80
+        },
+        "indentWidth": {
+          "description": "Number of spaces per indentation level. Defaults to dprint's global\n`indentWidth`, or 2 if unset. Arity always indents with spaces, so\ndprint's global `useTabs` has no effect.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0,
+          "default": 2
+        },
+        "lineEnding": {
+          "description": "Line-ending style for formatted output. Defaults to dprint's global\n`newLineKind`, or `auto` if unset.",
+          "$ref": "#/$defs/LineEnding",
+          "default": "auto"
+        },
+        "roxygen": {
+          "description": "Whether to format roxygen `#'` blocks. Defaults to true, matching arity.",
+          "type": "boolean",
+          "default": true
+        },
+        "roxygenMarkdown": {
+          "description": "Whether roxygen comments are markdown by default, i.e. whether the\npackage sets `Roxygen: list(markdown = TRUE)`.\n\nThe `arity` CLI discovers this by reading `DESCRIPTION` and\n`man/roxygen/meta.R`. dprint Wasm plugins run in a sandbox with no\nfilesystem access, so here it has to be stated explicitly. A block's own\n`@md`/`@noMd` tag still wins over this default, exactly as in the CLI.",
+          "type": "boolean",
+          "default": false
+        },
+        "files": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          ]
+        }
+      },
+      "required": [
+        "files"
+      ],
+      "minProperties": 2,
+      "additionalProperties": false
     }
   }
 }
