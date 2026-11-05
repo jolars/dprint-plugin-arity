@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.6](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.5...v1.1.6) (2026-11-05)
+
+### Bug Fixes
+
+- declare range formatting support ([`4744b5a`](https://github.com/jolars/dprint-plugin-arity/commit/4744b5af7a76837190f6f07c4c3c5ba9cb4492d2))
+
 ## [1.1.5](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.4...v1.1.5) (2026-10-29)
 
 ### Bug Fixes
