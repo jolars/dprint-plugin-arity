@@ -271,6 +271,7 @@ impl SyncPluginHandler<Configuration> for ArityHandler {
                 "https://github.com/jolars/dprint-plugin-arity/releases/download/v{version}/schema.json"
             ),
             update_url: Some("https://plugins.dprint.dev/jolars/arity/latest.json".to_string()),
+            supports_range_formatting: Some(true),
         }
     }
 
