@@ -435,13 +435,15 @@ mod tests {
 
     #[test]
     fn roxygen_formatting_can_be_disabled() {
-        let source = "#' Title  with  source spacing\n#' Second  line\nf<-function(){1+2}\n";
+        // Two statements keep the body braced across formatter versions.
+        let source =
+            "#' Title  with  source spacing\n#' Second  line\nf<-function(){x<-1+2\nx*2}\n";
         let mut cfg = config();
         cfg.roxygen = false;
 
         let out = format_all(&cfg, source);
         assert!(out.starts_with("#' Title  with  source spacing\n#' Second  line\n"));
-        assert!(out.contains("f <- function() 1 + 2"));
+        assert!(out.ends_with("f <- function() {\n  x <- 1 + 2\n  x * 2\n}\n"));
         assert_eq!(format_all(&cfg, &out), out);
     }
 
