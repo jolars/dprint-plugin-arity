@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1](https://github.com/jolars/dprint-plugin-arity/compare/v1.2.0...v1.2.1) (2026-11-17)
+
+### Bug Fixes
+
+- **deps:** upgrade `dprint-core` to 0.77.0 ([`c8dc6f9`](https://github.com/jolars/dprint-plugin-arity/commit/c8dc6f9867f1abb311cb107e9ae22dacae59f527))
+
 ## [1.2.0](https://github.com/jolars/dprint-plugin-arity/compare/v1.1.7...v1.2.0) (2026-11-17)
 
 ### Features
